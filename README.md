@@ -1,25 +1,45 @@
 # suraft: A Raft Consensus Implementation on Shared Storage
 
-## Overview
 
-**suraft** is a distributed storage project that implements the Raft consensus algorithm by leveraging shared storage systems like Amazon S3. Unlike traditional Raft implementations, where each node maintains its own log and state machine, suraft simplifies the architecture by utilizing shared storage. This eliminates the need for log replication and local state machines. This new approach adapts the Raft protocol to cloud environments where shared storage services are readily available and reliable.
+[![Discord Chat](https://img.shields.io/discord/1306128478331998298?logo=discord)](https://discord.gg/dPDDCyytkN)
 
-## Architectural Changes from Traditional Raft
+**suraft** is a distributed consensus project that adapts the Raft algorithm to work with shared storage systems like Amazon S3. By leveraging shared storage, `suraft` simplifies distributed consensus by eliminating log replication, making it ideal for cloud environments with reliable storage services.
 
-### Removal of the State Machine
+- [Goals and Non-Goals](rfcs/0001-goals.md)
+- [Architectural Design](rfcs/0002-arch.md)
 
-In the original Raft design, each node maintains a replicated state machine, which applies log entries to change its state. However, in suraft, the state machine is removed from the design:
 
-- **Omission of the State Machine**: Since all logs are centrally stored and accessible, the current state can be determined directly from the logs. There's no need for each node to maintain its own state machine.
-- **Separation of Business Logic**: The state machine is considered business-specific. By focusing solely on log consistency, suraft ensures that the core consensus mechanism remains general-purpose and streamlined.
+## Roadmap
 
-### Elimination of Log Replication
+- **System Design Docs**
+    - Core architecture
+    - Storage data layout
+    - Node state model
+    - Protocol design
 
-Traditional Raft requires replication of logs across all nodes to ensure consistency. With shared storage, suraft makes significant changes:
+- **Initial Implementation**
+    - Leader election
+    - Cluster bootstrap
+    - Basic log operations
+    - Member management
 
-- **Centralized Log Storage**: All log entries are stored directly in the shared storage (e.g., Amazon S3). This centralization means that all nodes can access the same log entries.
-- **No Log Replication**: Since logs are stored in shared storage, nodes do not need to replicate logs to each other, reducing complexity and network overhead.
-- **Simplified Log Management**: Operations like log truncation or reversal are unnecessary since logs are maintained in a single, consistent location.
+
+- **Core Features**
+    - State Machine Interface
+    - Storage cleanup
+    - Read path optimization
+
+- **Production Ready**
+    - Metrics and monitoring
+    - Performance testing
+    - Failure testing
+    - Documentation
+
+- **Extensions**
+    - Storage providers
+    - Client libraries
+    - Config management
+
 
 ## Data Storage Layout
 
