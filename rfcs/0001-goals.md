@@ -1,9 +1,9 @@
-# suraft: A Raft Consensus Implementation on Shared Storage
+# suRaft: A Raft Consensus Implementation on Shared Storage
 
 
 ## Overview
 
-**suraft** is a distributed consensus project that adapts the Raft algorithm to work with shared storage systems like Amazon S3. By leveraging shared storage, `suraft` simplifies distributed consensus by eliminating log replication, making it ideal for cloud environments with reliable storage services.
+**suRaft** is a distributed consensus project that adapts the Raft algorithm to work with shared storage systems like Amazon S3. By leveraging shared storage, `suRaft` simplifies distributed consensus by eliminating log replication, making it ideal for cloud environments with reliable storage services.
 
 
 ## Goals

@@ -1,12 +1,13 @@
-# suraft: A Raft Consensus Implementation on Shared Storage
+# suRaft: A Raft Consensus Implementation on Shared Storage
 
 
 [![Discord Chat](https://img.shields.io/discord/1306128478331998298?logo=discord)](https://discord.gg/dPDDCyytkN)
 
-**suraft** is a distributed consensus project that adapts the Raft algorithm to work with shared storage systems like Amazon S3. By leveraging shared storage, `suraft` simplifies distributed consensus by eliminating log replication, making it ideal for cloud environments with reliable storage services.
+**suRaft** is a distributed consensus project that adapts the Raft algorithm to work with shared storage systems like Amazon S3. By leveraging shared storage, `suRaft` simplifies distributed consensus by eliminating log replication, making it ideal for cloud environments with reliable storage services.
 
 - [Goals and Non-Goals](rfcs/0001-goals.md)
 - [Architectural Design](rfcs/0002-arch.md)
+- [Data Storage](rfcs/0003-data-storage.md)
 
 
 ## Roadmap
@@ -41,35 +42,11 @@
     - Config management
 
 
-## Data Storage Layout
-
-An important note in suraft is that `term` and `voted_for` do not need to be persisted because logs are written to shared storage using atomic operations. This means term reversion does not lead to state reversion as it might in standard Raft.
-
-### Components Stored in Shared Storage
-
-The data stored in the shared storage system is primarily the log entries:
-
-- **Log Entries**:
-  - **Global Log Vector**: A single, globally accessible sequence of log entries stored in the shared storage.
-  - **Log Entry Format**: Each log entry includes the term and the operation payload.
-
-### Log Entry Storage Structure
-
-- **Key Format**: Log entries are stored with keys following the pattern `/log/00001`, `/log/00002`, etc.
-- **Value Format**: Each key stores a JSON object containing the term and payload:
-
-  ```json
-  {
-      "term": 1,
-      "payload": "..."
-  }
-  ```
-
 ## Raft Protocol Adaptations
 
 ### Election Process
 
-In suraft, elections are conducted with modifications suited for the shared storage environment:
+In suRaft, elections are conducted with modifications suited for the shared storage environment:
 
 - **Simplified Comparison**: Nodes compare only their `term` and `voted_for` values, omitting `last_log_id` since logs are centrally stored and accessible to all nodes.
 - **Granting Votes**: When a node receives a `RequestVote` request, it grants its vote to a candidate if:
@@ -121,7 +98,7 @@ When a leader receives a client request:
 
 ## Process Lifecycle and States
 
-Nodes in suraft transition through three states: Follower, Candidate, and Leader. Each state has specific responsibilities and behaviors.
+Nodes in suRaft transition through three states: Follower, Candidate, and Leader. Each state has specific responsibilities and behaviors.
 
 ### 1. Follower
 
@@ -214,8 +191,8 @@ Once a candidate becomes a leader, it initializes and then starts serving.
 
 ## Conclusion
 
-suraft reimagines the Raft consensus algorithm by integrating shared storage solutions like Amazon S3. By centralizing log storage and eliminating the need for local state machines and log replication, suraft offers a simplified yet robust consensus mechanism suitable for modern cloud environments. This architecture leverages the reliability and scalability of shared storage to maintain consistency across distributed nodes while reducing the complexity inherent in traditional Raft implementations.
+suRaft reimagines the Raft consensus algorithm by integrating shared storage solutions like Amazon S3. By centralizing log storage and eliminating the need for local state machines and log replication, suRaft offers a simplified yet robust consensus mechanism suitable for modern cloud environments. This architecture leverages the reliability and scalability of shared storage to maintain consistency across distributed nodes while reducing the complexity inherent in traditional Raft implementations.
 
 ---
 
-**Note**: The suraft design assumes that the shared storage system supports atomic write operations that provide mutual exclusion. This is crucial for ensuring that only one leader can commit a log entry at a given index, which is essential for maintaining consistency in the cluster.
+**Note**: The suRaft design assumes that the shared storage system supports atomic write operations that provide mutual exclusion. This is crucial for ensuring that only one leader can commit a log entry at a given index, which is essential for maintaining consistency in the cluster.
