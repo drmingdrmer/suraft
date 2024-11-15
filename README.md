@@ -10,6 +10,11 @@
 - [Data Storage](rfcs/0003-data-storage.md)
 
 
+Optionally Support:
+
+- [Multi-Column Multi-Leader](rfcs/0099-multi-leader.md)
+
+
 ## Roadmap
 
 - **System Design Docs**
