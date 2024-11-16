@@ -8,6 +8,8 @@ The `Server` struct encapsulates the necessary state for participating in electi
 struct Server {
     id: NodeId,
     vote: Option<Vote>,
+	// When the leader expire, and a new round of election should be started.
+    election_deadline: Instant,
     candidate_state: Option<CandidateState>,
     leader_state: Option<LeaderState>,
 }

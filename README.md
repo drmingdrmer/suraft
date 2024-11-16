@@ -9,6 +9,7 @@
 - [Architectural Design](rfcs/0002-arch.md)
 - [Data Storage](rfcs/0003-data-storage.md)
 - [Server State](rfcs/0004-server-state.md)
+- [Protocol](rfcs/0005-protocol.md)
 
 
 Optionally Support:
