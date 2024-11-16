@@ -8,6 +8,7 @@
 - [Goals and Non-Goals](rfcs/0001-goals.md)
 - [Architectural Design](rfcs/0002-arch.md)
 - [Data Storage](rfcs/0003-data-storage.md)
+- [Server State](rfcs/0004-server-state.md)
 
 
 Optionally Support:
