@@ -1,0 +1,44 @@
+# These tests depend on `memstore`, while `memstore` enables `serde` feature of `suraft`.
+# This make it impossible to test suraft with `serde` feature off.
+
+[package]
+name = "tests"
+description = "suraft integration tests. To prevent memstore from enabling `serde` feature"
+
+version       = { workspace = true }
+edition       = { workspace = true }
+authors       = { workspace = true }
+categories    = { workspace = true }
+documentation = { workspace = true }
+homepage      = { workspace = true }
+keywords      = { workspace = true }
+license       = { workspace = true }
+repository    = { workspace = true }
+
+[dependencies]
+
+[dev-dependencies]
+suraft           = { path="../suraft", version = "0.1.0", features=["type-alias"] }
+memstore  = { path= "../stores/memstore" }
+
+anyerror           = { workspace = true }
+anyhow             = { workspace = true }
+async-entry        = { workspace = true }
+derive_more        = { workspace = true }
+futures            = { workspace = true }
+lazy_static        = { workspace = true }
+maplit             = { workspace = true }
+pretty_assertions  = { workspace = true }
+rand               = { workspace = true }
+test-harness       = { workspace = true }
+tokio              = { workspace = true }
+tracing            = { workspace = true }
+tracing-appender   = { workspace = true }
+tracing-subscriber = { workspace = true }
+
+
+[features]
+
+bt = ["suraft/bt"]
+single-term-leader = ["suraft/single-term-leader"]
+loosen-follower-log-revert = ["suraft/loosen-follower-log-revert"]

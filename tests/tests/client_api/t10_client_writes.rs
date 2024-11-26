@@ -1,0 +1,112 @@
+use std::sync::Arc;
+
+use anyhow::Result;
+use futures::prelude::*;
+use maplit::btreeset;
+use suraft::suraft::WriteReply;
+use suraft::Config;
+use suraft::LogId;
+use suraft::SnapshotPolicy;
+use suraft_memstore::ClientRequest;
+use suraft_memstore::IntoMemClientRequest;
+use suraft_memstore::TypeConfig;
+
+use crate::fixtures::s;
+use crate::fixtures::ut_harness;
+use crate::fixtures::ChannelNetwork;
+
+/// - create a stable 3-node cluster.
+/// - write a lot of data to it.
+/// - assert that the cluster stayed stable and has all of the expected data.
+#[tracing::instrument]
+#[test_harness::test(harness = ut_harness)]
+async fn client_writes() -> Result<()> {
+    let config = Arc::new(
+        Config {
+            snapshot_policy: SnapshotPolicy::LogsSinceLast(500),
+            // The write load is heavy in this test, need a relatively long
+            // timeout.
+            election_timeout_min: 500,
+            election_timeout_max: 1000,
+            enable_tick: false,
+            ..Default::default()
+        }
+        .validate()?,
+    );
+
+    let mut router = ChannelNetwork::new(config.clone());
+
+    tracing::info!("--- initializing cluster");
+    let mut log_index =
+        router.new_cluster(btreeset! {s(0),s(1),s(2)}, btreeset! {}).await?;
+
+    // Write a bunch of data and assert that the cluster stayes stable.
+    let leader = router.leader().expect("leader not found");
+    let mut clients = futures::stream::FuturesUnordered::new();
+    clients.push(router.client_request_many(leader.clone(), "0", 100));
+    clients.push(router.client_request_many(leader.clone(), "1", 100));
+    clients.push(router.client_request_many(leader.clone(), "2", 100));
+    clients.push(router.client_request_many(leader.clone(), "3", 100));
+    clients.push(router.client_request_many(leader.clone(), "4", 100));
+    clients.push(router.client_request_many(leader.clone(), "5", 100));
+    while clients.next().await.is_some() {}
+
+    log_index += 100 * 6;
+    router
+        .wait_for_log(
+            &btreeset! {s(0), s(1), s(2)},
+            Some(log_index),
+            None,
+            "sync logs",
+        )
+        .await?;
+
+    router
+        .assert_storage_state(
+            1,
+            log_index,
+            Some(s(0)),
+            LogId::new(1, log_index),
+            Some(((499..600).into(), 1)),
+        )
+        .await?;
+
+    Ok(())
+}
+
+/// Test SuRaft::client_write_ff,
+///
+/// Manually receive the client-write response via the returned
+/// `Responder::Receiver`
+#[tracing::instrument]
+#[test_harness::test(harness = ut_harness)]
+async fn client_write_ff() -> Result<()> {
+    let config = Arc::new(
+        Config {
+            enable_tick: false,
+            ..Default::default()
+        }
+        .validate()?,
+    );
+
+    let mut router = ChannelNetwork::new(config.clone());
+
+    tracing::info!("--- initializing cluster");
+    let log_index =
+        router.new_cluster(btreeset! {s(0),s(1),s(2)}, btreeset! {}).await?;
+    let _ = log_index;
+
+    let n0 = router.get_raft_handle(&s(0))?;
+
+    let resp_rx =
+        n0.client_write_ff(ClientRequest::make_request("foo", 2)).await?;
+    let got: WriteReply<TypeConfig> = resp_rx.await??;
+    assert_eq!(None, got.response().0.as_deref());
+
+    let resp_rx =
+        n0.client_write_ff(ClientRequest::make_request("foo", 3)).await?;
+    let got: WriteReply<TypeConfig> = resp_rx.await??;
+    assert_eq!(Some("request-2"), got.response().0.as_deref());
+
+    Ok(())
+}

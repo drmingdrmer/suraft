@@ -1,4 +1,5 @@
 #![doc = include_str!("lib_readme.md")]
+#![doc = include_str!("docs/docs.md")]
 #![cfg_attr(feature = "bt", feature(error_generic_member_access))]
 #![cfg_attr(feature = "bench", feature(test))]
 #![allow(clippy::bool_assert_comparison)]
@@ -28,6 +29,7 @@ mod quorum;
 
 pub mod app;
 pub mod base;
+pub mod docs;
 pub mod errors;
 pub mod impls;
 pub mod metrics;

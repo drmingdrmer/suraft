@@ -58,6 +58,7 @@ resolver = "2"
 
 members = [
     "suraft",
+    "tests",
     "stores/memstore",
     "network/pseudonet",
     "examples/hello",

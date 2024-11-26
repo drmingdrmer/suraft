@@ -1,0 +1,76 @@
+use std::sync::Arc;
+use std::time::Duration;
+
+use anyhow::Result;
+use maplit::btreeset;
+use suraft::Config;
+
+use crate::fixtures::s;
+use crate::fixtures::ut_harness;
+use crate::fixtures::ChannelNetwork;
+
+/// Test replication to learner that is not in membership should not block.
+///
+/// What does this test do?
+///
+/// - bring on a cluster of 1 voter and 1 learner.
+/// - isolate replication to node 1.
+/// - client write should not be blocked.
+#[tracing::instrument]
+#[test_harness::test(harness = ut_harness)]
+async fn replication_1_voter_to_isolated_learner() -> Result<()> {
+    let config = Arc::new(
+        Config {
+            enable_heartbeat: false,
+            ..Default::default()
+        }
+        .validate()?,
+    );
+    let mut router = ChannelNetwork::new(config.clone());
+
+    let mut log_index =
+        router.new_cluster(btreeset! {s(0)}, btreeset! {s(1)}).await?;
+
+    tracing::info!(log_index, "--- stop replication to node 1");
+    {
+        router.set_network_error(s(1), true);
+
+        router
+            .client_request_many(s(0), "0", (10 - log_index) as usize)
+            .await?;
+        log_index = 10;
+
+        router
+            .wait_for_log(
+                &btreeset! {s(0)},
+                Some(log_index),
+                timeout(),
+                "send log to trigger snapshot",
+            )
+            .await?;
+    }
+
+    tracing::info!(log_index, "--- restore replication to node 1");
+    {
+        router.set_network_error(s(1), false);
+
+        router
+            .client_request_many(s(0), "0", (10 - log_index) as usize)
+            .await?;
+        log_index = 10;
+
+        router
+            .wait_for_log(
+                &btreeset! {s(0)},
+                Some(log_index),
+                timeout(),
+                "send log to trigger snapshot",
+            )
+            .await?;
+    }
+    Ok(())
+}
+
+fn timeout() -> Option<Duration> {
+    Some(Duration::from_millis(1000))
+}
