@@ -1,0 +1,15 @@
+[package]
+name = "pseudonet"
+version.workspace = true
+edition.workspace = true
+authors.workspace = true
+categories.workspace = true
+description.workspace = true
+documentation.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+suraft = { path= "../../suraft", version = "0.1.0" }
