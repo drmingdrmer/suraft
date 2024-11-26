@@ -1,0 +1,181 @@
+<div align="center">
+    <h1>Openraft</h1>
+    <h4>
+        Advanced <a href="https://raft.github.io/">Raft</a> in 🦀 Rust using <a href="https://tokio.rs/">Tokio</a>. Please ⭐ on <a href="https://github.com/suraft/suraft">github</a>!
+    </h4>
+
+
+[![Crates.io](https://img.shields.io/crates/v/suraft.svg)](https://crates.io/crates/suraft)
+[![docs.rs](https://docs.rs/suraft/badge.svg)](https://docs.rs/suraft)
+[![guides](https://img.shields.io/badge/guide-%E2%86%97-brightgreen)](https://docs.rs/suraft/latest/suraft/docs/index.html)
+[![Discord Chat](https://img.shields.io/discord/1015845055434588200?logo=discord)](https://discord.gg/ZKw3WG7FQ9)
+<br/>
+[![CI](https://github.com/suraft/suraft/actions/workflows/ci.yaml/badge.svg)](https://github.com/suraft/suraft/actions/workflows/ci.yaml)
+![License](https://img.shields.io/badge/license-MIT%2FApache--2.0-blue)
+![Crates.io](https://img.shields.io/crates/d/suraft.svg)
+![Crates.io](https://img.shields.io/crates/dv/suraft.svg)
+
+</div>
+
+This project intends to improve raft as the next-generation consensus protocol for distributed data storage systems (SQL, NoSQL, KV, Streaming, Graph ... or maybe something more exotic).
+
+Currently, suraft is the consensus engine of meta-service cluster in [databend](https://github.com/datafuselabs/databend).
+
+
+- 🚀 **Get started**:
+    - [Openraft guide](https://docs.rs/suraft/latest/suraft/docs/getting_started/index.html) is the best place to get started,
+    - [Openraft docs](https://docs.rs/suraft/latest/suraft/docs/index.html) for more in-depth details,
+    - [Openraft FAQ](https://docs.rs/suraft/latest/suraft/docs/faq/index.html) explains some common questions.
+
+- 💡 **Example Applications**:
+
+    - [Examples with Openraft 0.9](https://github.com/suraft/suraft/tree/release-0.9/examples) require Openraft 0.9 on [crate.io/suraft](https://crates.io/crates/suraft)
+    - [Examples with Openraft 0.10](https://github.com/suraft/suraft/tree/release-0.10/examples) require Openraft 0.10, which is not yet published on crate.io;
+
+- 🙌 **Questions**?
+    - Why not take a peek at our [FAQ](https://docs.rs/suraft/latest/suraft/docs/faq/index.html)? You might find just what you need.
+    - Wanna chat? Come hang out with us on [Discord](https://discord.gg/ZKw3WG7FQ9)!
+    - Or start a new discussion over on [GitHub](https://github.com/suraft/suraft/discussions/new).
+    - Or join our [Feishu group](https://applink.feishu.cn/client/chat/chatter/add_by_link?link_token=d20l9084-6d36-4470-bac5-4bad7378d003).
+    - And hey, if you're on WeChat, add us: `drmingdrmer`. Let's get the conversation started!
+
+Whatever your style, we're here to support you. 🚀 Let's make something awesome together!
+
+- Openraft is derived from [async-raft](https://docs.rs/crate/async-raft/latest) with several bugs fixed: [Fixed bugs](https://github.com/suraft/suraft/blob/main/derived-from-async-raft.md).
+
+
+# Status
+
+- The features are almost complete for building an application.
+- Performance: Supports 70,000 writes/sec for single writer, and 1,000,000 writes/sec for 256 writers. See: [Performance](#performance)
+- Unit test coverage stands at 92%.
+- The chaos test has not yet been completed, and further testing is needed to ensure the application's robustness and reliability.
+
+
+## API status
+
+- **Openraft API is not stable yet**. Before `1.0.0`, an upgrade may contain incompatible changes.
+  Check our [change-log](https://github.com/suraft/suraft/blob/main/change-log.md). A commit message starts with a keyword to indicate the modification type of the commit:
+
+  - `DataChange:` on-disk data types changes, which may require manual upgrade.
+  - `Change:` if it introduces incompatible changes.
+  - `Feature:` if it introduces compatible non-breaking new features.
+  - `Fix:` if it just fixes a bug.
+
+## Versions
+
+- **Branch main** has been under active development.
+    The main branch is for the [release-0.10](https://github.com/suraft/suraft/tree/release-0.10).
+
+- **Branch [release-0.9](https://github.com/suraft/suraft/tree/release-0.9)**:
+  Latest: ( [v0.9.0](https://github.com/suraft/suraft/tree/v0.9.0) | [Change log](https://github.com/suraft/suraft/blob/release-0.9/change-log.md#v090) );
+  Upgrade guide: ⬆️  [0.8 to 0.9](https://docs.rs/suraft/0.9.0/suraft/docs/upgrade_guide/upgrade_08_09/index.html);
+  `release-0.9` **Won't** accept new features but only bug fixes.
+
+- **Branch [release-0.8](https://github.com/suraft/suraft/tree/release-0.8)**:
+  Latest: ( [v0.8.8](https://github.com/suraft/suraft/tree/v0.8.8) | [Change log](https://github.com/suraft/suraft/blob/release-0.8/change-log.md#v088) );
+  Upgrade guide: ⬆️  [0.7 to 0.8](https://docs.rs/suraft/0.8.4/suraft/docs/upgrade_guide/upgrade_07_08/index.html), ⬆️  [0.8.3 to 0.8.4](https://docs.rs/suraft/0.8.4/suraft/docs/upgrade_guide/upgrade_083_084/index.html);
+  `release-0.8` **Won't** accept new features but only bug fixes.
+
+- **Branch [release-0.7](https://github.com/suraft/suraft/tree/release-0.7)**:
+  Latest: ( [v0.7.6](https://github.com/suraft/suraft/tree/v0.7.6) | [Change log](https://github.com/suraft/suraft/blob/release-0.7/change-log.md#v076) );
+  Upgrade guide: ⬆️  [0.6 to 0.7](https://docs.rs/suraft/0.8.4/suraft/docs/upgrade_guide/upgrade_06_07/index.html);
+  `release-0.7` **Won't** accept new features but only bug fixes.
+
+- **Branch [release-0.6](https://github.com/suraft/suraft/tree/release-0.6)**:
+  Latest: ( [v0.6.8](https://github.com/suraft/suraft/tree/v0.6.8) | [Change log](https://github.com/suraft/suraft/blob/release-0.6/change-log.md) );
+  `release-0.6` **won't** accept new features but only bug fixes.
+
+# Roadmap
+
+- [x] **2022-10-31** [Extended joint membership](https://docs.rs/suraft/latest/suraft/docs/data/extended_membership/index.html)
+- [x] **2023-02-14** Minimize confliction rate when electing;
+  See: [Openraft Vote design](https://docs.rs/suraft/latest/suraft/docs/data/vote/index.html);
+  Or use standard raft mode with [feature flag `single-term-leader`](https://docs.rs/suraft/latest/suraft/docs/feature_flags/index.html).
+- [x] **2023-04-26** Goal performance is 1,000,000 put/sec.
+- [ ] Reduce the complexity of vote and pre-vote: [get rid of pre-vote RPC](https://github.com/suraft/suraft/discussions/15);
+- [ ] Support flexible quorum, e.g.: [Hierarchical Quorums](https://zookeeper.apache.org/doc/r3.5.9/zookeeperHierarchicalQuorums.html)
+- [ ] Consider introducing read-quorum and write-quorum,
+  improve efficiency with a cluster with an even number of nodes.
+
+
+<!--
+   - - [ ] Consider to separate log storage and log order storage.
+   -   Leader only determines and replicates the index of log entries, not log
+   -   payload.
+      -->
+
+# Performance
+
+The benchmark is focused on the Openraft framework itself and is run on a
+minimized store and network. This is **NOT a real world** application benchmark!!!
+
+| clients | put/s         | ns/op      |
+| --:     | --:           | --:        |
+| 256     | **1,014,000** |      985   |
+|  64     |   **730,000** |    1,369   |
+|   1     |      70,000   | **14,273** |
+
+
+For benchmark detail, go to the [./cluster_benchmark](./cluster_benchmark) folder.
+
+# Features
+
+- **Async and Event-Driven**: Operates based on Raft events without reliance on periodic ticks, optimizing message batching for high throughput.
+- **Extensible Storage and Networking**: Customizable via `RaftLogStorage`, `RaftStateMachine` and `RaftNetwork` traits, allowing flexibility in choosing storage and network solutions.
+- **Unified Raft API**: Offers a single `Raft` type for creating and interacting with Raft tasks, with a straightforward API.
+- **Cluster Formation**: Provides strategies for initial cluster setup as detailed in the [cluster formation guide](https://docs.rs/suraft/latest/suraft/docs/cluster_control/cluster_formation/index.html).
+- **Built-In Tracing Instrumentation**: The codebase integrates [tracing](https://docs.rs/tracing/) for logging and distributed tracing, with the option to [set verbosity levels at compile time](https://docs.rs/tracing/latest/tracing/level_filters/index.html).
+
+## Functionality:
+
+- ✅ **Leader election**: by policy or manually([`trigger_elect()`][]).
+- ✅ **Non-voter(learner) Role**: refer to [`add_learner()`][].
+- ✅ **Log Compaction**(snapshot of state machine): by policy or manually([`trigger_snapshot()`]).
+- ✅ **Snapshot replication**.
+- ✅ **Dynamic Membership**: using joint membership config change. Refer to [dynamic membership](https://docs.rs/suraft/latest/suraft/docs/cluster_control/dynamic_membership/index.html)
+- ✅ **Linearizable read**: [`ensure_linearizable()`][].
+- ⛔️ **Wont support**: Single-step config change.  <!-- TODO: explain why -->
+- ✅ Toggle heartbeat / election: [`enable_heartbeat`][] / [`enable_elect`][].
+- ✅ Trigger snapshot / election manually: [`trigger_snapshot()`][] / [`trigger_elect()`][].
+- ✅ Purge log by policy or manually: [`purge_log()`][].
+
+
+# Who use it
+
+- [Databend](https://github.com/datafuselabs/databend) - The Next-Gen Cloud [Data+AI] Analytics
+- [CnosDB](https://github.com/cnosdb/cnosdb) - A cloud-native open source distributed time series database.
+- [yuyang0/rrqlite](https://github.com/yuyang0/rrqlite) - A rust implementation of [rqlite](https://github.com/rqlite/rqlite).
+- [raymondshe/matchengine-raft](https://github.com/raymondshe/matchengine-raft) - A example to demonstrate how suraft persists snapshots/logs to disk.
+- [Helyim](https://github.com/helyim/helyim) - [SeaweedFS](https://github.com/seaweedfs/seaweedfs) implemented in pure Rust.
+- [RobustMQ](https://github.com/robustmq/robustmq) - Next generation cloud-native converged message queue.
+
+# Contributing
+
+Check out the [CONTRIBUTING.md](https://github.com/suraft/suraft/blob/main/CONTRIBUTING.md)
+guide for more details on getting started with contributing to this project.
+
+## Contributors
+
+<a href="https://github.com/suraft/suraft/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=suraft/suraft"/>
+</a>
+
+Made with [contributors-img](https://contrib.rocks).
+
+# License
+
+Openraft is licensed under the terms of the [MIT License](https://en.wikipedia.org/wiki/MIT_License#License_terms)
+or the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0), at your choosing.
+
+
+[`change_membership()`]: https://docs.rs/suraft/latest/suraft/raft/struct.Raft.html#method.change_membership
+[`add_learner()`]: https://docs.rs/suraft/latest/suraft/raft/struct.Raft.html#method.add_learner
+[`purge_log()`]: https://docs.rs/suraft/latest/suraft/raft/struct.Raft.html#method.purge_log
+
+[`enable_heartbeat`]: https://docs.rs/suraft/latest/suraft/struct.Config.html#structfield.enable_heartbeat
+[`enable_elect`]: https://docs.rs/suraft/latest/suraft/struct.Config.html#structfield.enable_elect
+
+[`trigger_elect()`]: https://docs.rs/suraft/latest/suraft/raft/struct.Raft.html#method.trigger_elect
+[`trigger_snapshot()`]: https://docs.rs/suraft/latest/suraft/raft/struct.Raft.html#method.trigger_snapshot
+[`ensure_linearizable()`]: https://docs.rs/suraft/latest/suraft/raft/struct.Raft.html#method.ensure_linearizable
