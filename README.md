@@ -5,6 +5,8 @@
 
 **suRaft** is a distributed consensus project that adapts the Raft algorithm to work with shared storage systems like Amazon S3. By leveraging shared storage, `suRaft` simplifies distributed consensus by eliminating log replication, making it ideal for cloud environments with reliable storage services.
 
+![](rfcs/assets/architecture.drawio.svg)
+
 - [Goals and Non-Goals](rfcs/0001-goals.md)
 - [Architectural Design](rfcs/0002-arch.md)
 - [Data Storage](rfcs/0003-data-storage.md)
@@ -22,7 +24,7 @@ Optionally Support:
 
 - [x] **System Design Docs**
 
-- **Initial Implementation**
+- [x] **Initial Implementation**
     - Leader election
     - Cluster bootstrap
     - Basic log operations
